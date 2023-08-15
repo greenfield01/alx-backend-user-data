@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """DB module
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, tuple_
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 
@@ -16,7 +18,7 @@ class DB:
     def __init__(self) -> None:
         """Initialize a new DB instance
         """
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -31,7 +33,7 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        """Add a user and return new user object.
+        """Add a user to the database and return the User object
 
         Args:
             email: string, required
@@ -40,7 +42,6 @@ class DB:
         Returns:
             User object
         """
-
         try:
             new_user = User(email=email, hashed_password=hashed_password)
             self._session.add(new_user)
@@ -50,4 +51,3 @@ class DB:
             new_user = None
 
         return new_user
-
