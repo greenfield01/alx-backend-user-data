@@ -51,3 +51,19 @@ class DB:
             new_user = None
 
         return new_user
+
+    def find_user_by(self, **kwarg) -> User:
+            """ Find user implementation."""
+        fields, values = [], []
+        for key, value in kwargs.items():
+            if hasattr(User, key):
+                fields.append(getattr(User, key))
+                values.append(value)
+            else:
+                raise InvalidRequestError()
+        result = self._session.query(User).filter(
+            tuple_(*fields).in_([tuple(values)])
+        ).first()
+        if result is None:
+            raise NoResultFound()
+        return result
